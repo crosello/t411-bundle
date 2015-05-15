@@ -1,0 +1,37 @@
+services:
+    #Repositories
+    t411.repository.torrents:
+        class: Rosello\T411\Repository\TorrentRepository
+        arguments: [@t411.config.token]
+
+    #Config
+    t411.provider.token_config:
+        class: Rosello\T411Bundle\Provider\TokenConfigProvider
+        arguments: [@t411.authentication, @t411.storage.token, %t411_user%, %t411_password%]
+        scope: request
+
+    t411.config.token:
+        class: Rosello\T411\Config\TokenConfig
+        factory_service: t411.provider.token_config
+        factory_method: getTokenConfig
+
+    #Authentication
+    t411.authentication:
+        class: Rosello\T411\Authentication\Authentication
+
+    #Storage
+    t411.storage.token.cookie:
+        class: Rosello\T411Bundle\Storage\Token\CookieStorage
+        arguments:
+            - @event_dispatcher
+            - @request
+            - %t411.storage.name%
+            - %t411.storage.expire%
+        scope: request
+
+    t411.storage.token.session:
+        class: Rosello\T411Bundle\Storage\Token\SessionStorage
+        arguments: [@session, %t411.storage.name%]
+
+    t411.storage.token.null:
+        class: Rosello\T411Bundle\Storage\Token\NullStorage
